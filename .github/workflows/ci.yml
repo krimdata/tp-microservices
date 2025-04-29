@@ -1,0 +1,66 @@
+name: CI & Push Docker Images
+
+# Déclenche le workflow à chaque push sur la branche main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupérer le code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Préparer Docker buildx (build multi-architecture)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # 3. Se logger dans le registre local
+     # - name: Log in to local registry
+      #  uses: docker/login-action@v2
+        #with:
+         # registry: localhost:5000
+          # Pour un registre local sans authentification, on peut omettre username/password.
+          # Sinon, ajoute ici tes secrets GitHub si nécessaire.
+         # username: ${{ secrets.REGISTRY_USER }}
+         # password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      # 4. Build & push pour chaque service
+      - name: Build and push auth-service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./auth-service
+          push: true
+          tags: localhost:5000/auth-service:latest
+
+      - name: Build and push product-service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./product-service
+          push: true
+          tags: localhost:5000/product-service:latest
+
+      - name: Build and push order-service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./order-service
+          push: true
+          tags: localhost:5000/order-service:latest
+
+      - name: Build and push api-gateway
+        uses: docker/build-push-action@v4
+        with:
+          context: ./api-gateway
+          push: true
+          tags: localhost:5000/api-gateway:latest
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: localhost:5000/frontend:latest

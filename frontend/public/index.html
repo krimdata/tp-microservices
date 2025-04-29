@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini E-commerce</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: auto;
+      padding: 1rem;
+    }
+    #login, #products, #cart {
+      margin-bottom: 2rem;
+    }
+    button {
+      margin: 0.2rem;
+    }
+    input {
+      margin: 0.2rem 0;
+      padding: 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mini E-commerce</h1>
+
+  <!-- Login/Register -->
+  <div id="login">
+    <h2>Connexion / Inscription</h2>
+    <input id="username" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Mot de passe" />
+    <button id="btn-login">Se connecter</button>
+    <button id="btn-register">S’inscrire</button>
+    <p id="login-msg"></p>
+  </div>
+
+  <!-- Products List -->
+  <div id="products" style="display:none;">
+    <h2>Produits</h2>
+    <div id="products-list"></div>
+  </div>
+
+  <!-- Cart -->
+  <div id="cart" style="display:none;">
+    <h2>Panier</h2>
+    <div id="cart-items"></div>
+    <button id="btn-order">Passer la commande</button>
+    <p id="order-msg"></p>
+  </div>
+
+  <script src="../src/app.js"></script>
+</body>
+</html>

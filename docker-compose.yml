@@ -1,0 +1,79 @@
+version: '3.8'
+services:
+  auth-service:
+    build: ./auth-service
+    image: localhost:5000/auth-service:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - PORT=3000
+      - JWT_SECRET=changeme
+    networks:
+      - ecommerce-network
+
+  product-service:
+    build: ./product-service
+    image: localhost:5000/product-service:latest
+    ports:
+      - "3002:3000"
+    environment:
+      - PORT=3000
+      - JWT_SECRET=changeme
+    networks:
+      - ecommerce-network
+
+  order-service:
+    build: ./order-service
+    image: localhost:5000/order-service:latest
+    ports:
+      - "3003:3000"
+    environment:
+      - PORT=3000
+      - JWT_SECRET=changeme
+    networks:
+      - ecommerce-network
+
+  api-gateway:
+    build: ./api-gateway
+    image: localhost:5000/api-gateway:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - AUTH_URL=http://auth-service:3000
+      - PRODUCT_URL=http://product-service:3000
+      - ORDER_URL=http://order-service:3000
+    depends_on:
+      - auth-service
+      - product-service
+      - order-service
+    networks:
+      - ecommerce-network
+
+  frontend:
+    build: ./frontend
+    image: localhost:5000/frontend:latest
+    ports:
+      - "8080:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - ecommerce-network
+
+  registry:
+    image: registry:2
+    ports:
+      - "5000:5000"
+    restart: always
+    networks:
+      - ecommerce-network
+    volumes:
+      - registry-data:/var/lib/registry
+
+networks:
+  ecommerce-network:
+
+volumes:
+  registry-data:
+
+
