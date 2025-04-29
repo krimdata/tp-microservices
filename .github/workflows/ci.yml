@@ -1,10 +1,15 @@
-name: CI & Push Docker Images
+name: CI & Push to GitHub Container Registry
 
-# Déclenche le workflow à chaque push sur la branche main
+# Déclenchement du workflow
 on:
   push:
     branches:
       - main
+
+permissions:
+  contents: read        # pour checkout
+  packages: write       # pour publier sur GHCR
+  # GITHUB_TOKEN a déjà ces permissions par défaut
 
 jobs:
   build-and-push:
@@ -12,55 +17,58 @@ jobs:
 
     steps:
       # 1. Récupérer le code
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Préparer Docker buildx (build multi-architecture)
+      # 2. Configurer Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # 3. Se logger dans le registre local
-     # - name: Log in to local registry
-      #  uses: docker/login-action@v2
-        #with:
-         # registry: localhost:5000
-          # Pour un registre local sans authentification, on peut omettre username/password.
-          # Sinon, ajoute ici tes secrets GitHub si nécessaire.
-         # username: ${{ secrets.REGISTRY_USER }}
-         # password: ${{ secrets.REGISTRY_PASSWORD }}
+      # 3. Se logger sur GHCR
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Build & push pour chaque service
-      - name: Build and push auth-service
+      # 4. Build et push auth-service
+      - name: Build & push auth-service
         uses: docker/build-push-action@v4
         with:
           context: ./auth-service
           push: true
-          tags: localhost:5000/auth-service:latest
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/auth-service:latest
 
-      - name: Build and push product-service
+      # 5. Build et push product-service
+      - name: Build & push product-service
         uses: docker/build-push-action@v4
         with:
           context: ./product-service
           push: true
-          tags: localhost:5000/product-service:latest
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/product-service:latest
 
-      - name: Build and push order-service
+      # 6. Build et push order-service
+      - name: Build & push order-service
         uses: docker/build-push-action@v4
         with:
           context: ./order-service
           push: true
-          tags: localhost:5000/order-service:latest
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/order-service:latest
 
-      - name: Build and push api-gateway
+      # 7. Build et push api-gateway
+      - name: Build & push api-gateway
         uses: docker/build-push-action@v4
         with:
           context: ./api-gateway
           push: true
-          tags: localhost:5000/api-gateway:latest
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/api-gateway:latest
 
-      - name: Build and push frontend
+      # 8. Build et push frontend
+      - name: Build & push frontend
         uses: docker/build-push-action@v4
         with:
           context: ./frontend
           push: true
-          tags: localhost:5000/frontend:latest
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/frontend:latest
+
